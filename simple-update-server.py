@@ -29,8 +29,13 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         s.send_response(200)
         s.send_header("Content-type", "text/plain")
         s.end_headers()
-        parsed_path = parse_qs(urlparse(s.path).query)
-        s.wfile.write("Application;" + latestVersion("Application") + ";http://example.com/pub/update.zip")
+        params = parse_qs(urlparse(s.path).query)
+        if params.get('app', '') == '':
+            s.wfile.write('go away')
+        else:
+            appName = params.get('app', '')[0]
+            appVersion = latestVersion(appName)
+            s.wfile.write(appName + ";" + appVersion + ";http://example.com/pub/update.zip")
         # s.wfile.write("AssetSheriff;2.5.2;http://192.168.0.65/pub/update.zip")
         # If someone went to "http://something.somewhere.net/foo/bar/",
         # then s.path equals "/foo/bar/".
