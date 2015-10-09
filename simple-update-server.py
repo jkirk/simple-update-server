@@ -16,7 +16,13 @@ PORT_NUMBER = 9999 # Maybe set this to 9000.
 def latestVersion(appName):
     return {
         'MyFirstApplication': '2.6.2',
-        'MySecondApplicatoin': '1.0.0',
+        'MySecondApplication': '1.0.0',
+    }.get(appName, '')
+
+def downloadUrl(appName):
+    return {
+        'MyFirstApplication': 'http://example.com/pub/app1-update.zip',
+        'MySecondApplication': 'http://example.com/pub/app2-update.zip',
     }.get(appName, '')
 
 class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
@@ -35,10 +41,11 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         else:
             appName = params.get('app', '')[0]
             appVersion = latestVersion(appName)
-            s.wfile.write(appName + ";" + appVersion + ";http://example.com/pub/update.zip")
-        # s.wfile.write("AssetSheriff;2.5.2;http://192.168.0.65/pub/update.zip")
-        # If someone went to "http://something.somewhere.net/foo/bar/",
-        # then s.path equals "/foo/bar/".
+            appDownloadUrl = downloadUrl(appName)
+            if appVersion == '' or appDownloadUrl == '':
+                s.wfile.write('')
+            else:
+                s.wfile.write(appName + ";" + appVersion + ";" + appDownloadUrl)
 
 if __name__ == '__main__':
     server_class = BaseHTTPServer.HTTPServer
